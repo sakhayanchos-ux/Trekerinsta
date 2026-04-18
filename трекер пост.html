@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>30-дневный трекер контента · Сахаяна</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #BADBEA;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px 16px 40px;
+      color: #1e1e2a;
+      line-height: 1.4;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+
+    .subhead {
+      color: #2c3e50;
+      margin-bottom: 20px;
+      border-left: 4px solid #FD95AC;
+      padding-left: 16px;
+      font-weight: 400;
+    }
+
+    .status-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 20px;
+      background: white;
+      padding: 12px 18px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      border: 1px solid #EFDDD9;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .status-label {
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .status-value {
+      font-weight: 500;
+      border-bottom: 2px dashed #FD95AC;
+      min-width: 120px;
+      padding: 2px 6px;
+    }
+
+    .progress-badge {
+      margin-left: auto;
+      background: #FD95AC;
+      color: white;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-weight: 700;
+    }
+
+    .week-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin: 24px 0 12px;
+      color: #1e293b;
+      background: white;
+      display: inline-block;
+      padding: 6px 20px;
+      border-radius: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .table-wrapper {
+      background: white;
+      border-radius: 24px;
+      padding: 4px 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+      border: 1px solid #EFDDD9;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .tracker-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+      font-size: 0.85rem;
+    }
+
+    .tracker-table th {
+      text-align: left;
+      background: #BADBEA;
+      padding: 12px 8px;
+      font-weight: 600;
+      color: #1e293b;
+      border-bottom: 2px solid #FD95AC;
+    }
+
+    .tracker-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #EFDDD9;
+      vertical-align: middle;
+    }
+
+    .day-col {
+      font-weight: 700;
+      width: 50px;
+      background: #F9FCFE;
+    }
+
+    .task-col {
+      min-width: 200px;
+    }
+
+    .check-col {
+      text-align: center;
+      width: 60px;
+    }
+
+    .check-col input {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #FD95AC;
+    }
+
+    .note-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #EFDDD9;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      background: white;
+      font-family: inherit;
+    }
+
+    .note-input:focus {
+      border-color: #FD95AC;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(253, 149, 172, 0.15);
+    }
+
+    .analysis-section {
+      background: white;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+      border: 1px solid #EFDDD9;
+      margin-top: 24px;
+    }
+
+    .analysis-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1e293b;
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px 20px;
+      margin-bottom: 20px;
+    }
+
+    .analysis-item {
+      border-bottom: 1px dashed #FD95AC;
+      padding-bottom: 8px;
+    }
+
+    .analysis-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .analysis-value {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .insight-block {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 2px solid #BADBEA;
+    }
+
+    .insight-text {
+      background: #F9FCFE;
+      padding: 14px 18px;
+      border-radius: 20px;
+      border-left: 6px solid #FD95AC;
+      font-weight: 500;
+    }
+
+    .footnote {
+      margin-top: 20px;
+      text-align: right;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #FD95AC;
+    }
+
+    .reset-btn {
+      background: white;
+      border: 1px solid #FD95AC;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      color: #FD95AC;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .reset-btn:hover {
+      background: #FD95AC;
+      color: white;
+    }
+
+    @media (max-width: 640px) {
+      .status-panel { flex-direction: column; }
+      .progress-badge { margin-left: 0; }
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>📱 30-ДНЕВНЫЙ ТРЕКЕР КОНТЕНТА</h1>
+    <button class="reset-btn" id="clearBtn">🗑️ Сбросить</button>
+  </div>
+  <div class="subhead">@mama_vizuala · Статусы · Посты · Reels · Stories</div>
+
+  <!-- СТАТУС ПАНЕЛЬ -->
+  <div class="status-panel">
+    <div class="status-item"><span class="status-label">📌 Имя:</span><span class="status-value" id="nameField" contenteditable="true">Сахаяна</span></div>
+    <div class="status-item"><span class="status-label">💼 Статус:</span><span class="status-value" id="statusField" contenteditable="true">Супервайзер Herbalife</span></div>
+    <div class="status-item"><span class="status-label">📅 Старт:</span><span class="status-value" id="startField" contenteditable="true">_______________</span></div>
+    <div class="progress-badge">🔥 Выполнено: <span id="progressCount">0</span>/30</div>
+  </div>
+
+  <!-- НЕДЕЛЯ 1 -->
+  <div class="week-title">📅 НЕДЕЛЯ 1</div>
+  <div class="table-wrapper">
+    <table class="tracker-table">
+      <thead>
+        <tr><th>День</th><th>📝 Статус / Пост</th><th>📷 Stories</th><th>🎬 Reels</th><th>✅</th><th>📝 Заметка</th></tr>
+      </thead>
+      <tbody id="week1"></tbody>
+    </table>
+  </div>
+
+  <!-- НЕДЕЛЯ 2 -->
+  <div class="week-title">📅 НЕДЕЛЯ 2</div>
+  <div class="table-wrapper">
+    <table class="tracker-table">
+      <thead>
+        <tr><th>День</th><th>📝 Статус / Пост</th><th>📷 Stories</th><th>🎬 Reels</th><th>✅</th><th>📝 Заметка</th></tr>
+      </thead>
+      <tbody id="week2"></tbody>
+    </table>
+  </div>
+
+  <!-- НЕДЕЛЯ 3 -->
+  <div class="week-title">📅 НЕДЕЛЯ 3</div>
+  <div class="table-wrapper">
+    <table class="tracker-table">
+      <thead>
+        <tr><th>День</th><th>📝 Статус / Пост</th><th>📷 Stories</th><th>🎬 Reels</th><th>✅</th><th>📝 Заметка</th></tr>
+      </thead>
+      <tbody id="week3"></tbody>
+    </table>
+  </div>
+
+  <!-- НЕДЕЛЯ 4 + ФИНИШ -->
+  <div class="week-title">📅 НЕДЕЛЯ 4 + ФИНИШ</div>
+  <div class="table-wrapper">
+    <table class="tracker-table">
+      <thead>
+        <tr><th>День</th><th>📝 Статус / Пост</th><th>📷 Stories</th><th>🎬 Reels</th><th>✅</th><th>📝 Заметка</th></tr>
+      </thead>
+      <tbody id="week4"></tbody>
+    </table>
+  </div>
+
+  <!-- ИТОГИ -->
+  <div class="analysis-section">
+    <div class="analysis-title">📊 ИТОГИ 30 ДНЕЙ</div>
+    <div class="analysis-grid" id="analysisGrid"></div>
+    <div class="insight-block">
+      <div style="font-weight: 600; margin-bottom: 10px;">💡 Главный инсайт после 30 дней</div>
+      <div class="insight-text" id="insightField" contenteditable="true">Что сработало лучше всего? Что изменишь в следующем месяце?</div>
+    </div>
+    <div class="footnote">Разбогатей 🚀</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const STORAGE_KEY = 'content_tracker_30_v1';
+    
+    // Данные для 30 дней
+    const week1Data = [
+      [1, 'О себе: 10 лет в Herbalife, мама, клуб 5:00', 'Утро в клубе', 'Приветствие'],
+      [2, 'Почему я выбрала Herbalife', 'Завтрак с Формулой 1', 'Рецепт коктейля'],
+      [3, 'Что такое клуб 5 утра', 'Фрагмент эфира', 'Мотивация'],
+      [4, 'История одного клиента', 'До/После', 'Трансформация'],
+      [5, 'Мифы о ПП и коктейлях', 'Опрос: завтракаешь?', 'Польза белка'],
+      [6, 'Субботний лайф: семья и баланс', 'Мой выходной', 'Юмор про мам'],
+      [7, 'Воскресный план на неделю', 'Цитата недели', 'Цель на 7 дней']
+    ];
+    
+    const week2Data = [
+      [8, 'Продукт дня: Формула 1', 'Распаковка', 'Состав коктейля'],
+      [9, 'Как я пришла к 5 утра', 'Моё утро', 'Дисциплина'],
+      [10, 'Ответ на возражение «дорого»', 'Разбор цены', 'Экономия на кофе'],
+      [11, 'Продукт дня: Термоджетикс', 'Утренний ритуал', 'Энергия'],
+      [12, 'Прямой эфир: тема ЗОЖ', 'Анонс эфира', 'Приглашение'],
+      [13, 'Суббота: Мастер-класс по выпечке', 'Процесс готовки', 'Рецепт ПП-кекса'],
+      [14, 'Воскресный отзыв клиента', 'Скрин сообщения', 'Благодарность']
+    ];
+    
+    const week3Data = [
+      [15, 'Продукт дня: Протеиновые батончики', 'Перекус в офисе', 'Здоровый снек'],
+      [16, 'Как я успеваю всё: семья и бизнес', 'Планирование', 'Тайм-менеджмент'],
+      [17, 'Приглашение в клуб 5 утра', 'Ссылка на Zoom', 'Почему 5 утра?'],
+      [18, 'Продукт дня: Алоэ Вера', 'Уход за собой', 'Красота изнутри'],
+      [19, 'История моего партнёра 25%', 'Путь новичка', 'Поддержка'],
+      [20, 'Суббота: День клиента в городе', 'За кадром', 'Атмосфера'],
+      [21, 'Воскресный вывод недели', 'Итоги', 'Благодарю']
+    ];
+    
+    const week4Data = [
+      [22, 'Продукт дня: Омега-3', 'Польза для сердца', 'Здоровье'],
+      [23, 'Как я работаю с возражениями', 'Прямой эфир', 'Скрипт'],
+      [24, 'Приглашение в команду', 'Возможность', 'Бизнес с Herbalife'],
+      [25, 'Продукт дня: Ночной коктейль', 'Вечерний ритуал', 'Восстановление'],
+      [26, 'Мой рост: от новичка до Супервайзера', 'Цифры и факты', 'Путь'],
+      [27, 'Суббота: Семейный завтрак с Herbalife', 'Дети и ПП', 'Семья'],
+      [28, 'Воскресный анонс недели', 'План на 7 дней', 'Интрига'],
+      [29, 'Итоги 30 дней контента', 'Цифры охватов', 'Что сработало'],
+      [30, 'Благодарность аудитории', 'Сюрприз', '🎁 Розыгрыш']
+    ];
+
+    let checkStates = {};
+    let notes = {};
+    let analysisData = {
+      posts: 0, stories: 0, reels: 0, followers: '', clients: '', partners: ''
+    };
+
+    function renderTable(tbodyId, data, startDay) {
+      const tbody = document.getElementById(tbodyId);
+      let html = '';
+      data.forEach((row, idx) => {
+        const day = row[0];
+        html += `<tr>`;
+        html += `<td class="day-col">${day}</td>`;
+        html += `<td class="task-col">${row[1]}</td>`;
+        html += `<td class="task-col">${row[2]}</td>`;
+        html += `<td class="task-col">${row[3]}</td>`;
+        html += `<td class="check-col"><input type="checkbox" data-day="${day}" class="day-check" ${checkStates[day] ? 'checked' : ''}></td>`;
+        html += `<td><input type="text" class="note-input" data-day="${day}" placeholder="Заметка" value="${notes[day] || ''}"></td>`;
+        html += `</tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function updateProgress() {
+      let count = 0;
+      for(let i=1; i<=30; i++) if(checkStates[i]) count++;
+      document.getElementById('progressCount').innerText = count;
+    }
+
+    function renderAnalysis() {
+      const grid = document.getElementById('analysisGrid');
+      grid.innerHTML = `
+        <div class="analysis-item"><div class="analysis-label">Всего постов</div><div class="analysis-value"><input type="number" id="postsInput" value="${analysisData.posts}" style="width:80px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;font-size:1.2rem;"></div></div>
+        <div class="analysis-item"><div class="analysis-label">Всего Stories</div><div class="analysis-value"><input type="number" id="storiesInput" value="${analysisData.stories}" style="width:80px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;font-size:1.2rem;"></div></div>
+        <div class="analysis-item"><div class="analysis-label">Всего Reels</div><div class="analysis-value"><input type="number" id="reelsInput" value="${analysisData.reels}" style="width:80px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;font-size:1.2rem;"></div></div>
+        <div class="analysis-item"><div class="analysis-label">Новые подписчики</div><div class="analysis-value"><input type="text" id="followersInput" value="${analysisData.followers}" style="width:100px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;"></div></div>
+        <div class="analysis-item"><div class="analysis-label">Заявки в клуб</div><div class="analysis-value"><input type="text" id="clientsInput" value="${analysisData.clients}" style="width:100px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;"></div></div>
+        <div class="analysis-item"><div class="analysis-label">Новые партнёры</div><div class="analysis-value"><input type="text" id="partnersInput" value="${analysisData.partners}" style="width:100px;border:1px solid #EFDDD9;border-radius:12px;padding:6px;"></div></div>
+      `;
+    }
+
+    function saveAll() {
+      analysisData.posts = document.getElementById('postsInput')?.value || 0;
+      analysisData.stories = document.getElementById('storiesInput')?.value || 0;
+      analysisData.reels = document.getElementById('reelsInput')?.value || 0;
+      analysisData.followers = document.getElementById('followersInput')?.value || '';
+      analysisData.clients = document.getElementById('clientsInput')?.value || '';
+      analysisData.partners = document.getElementById('partnersInput')?.value || '';
+      
+      const data = {
+        checks: checkStates,
+        notes: notes,
+        analysis: analysisData,
+        name: document.getElementById('nameField')?.innerText || 'Сахаяна',
+        status: document.getElementById('statusField')?.innerText || '',
+        start: document.getElementById('startField')?.innerText || '',
+        insight: document.getElementById('insightField')?.innerText || ''
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved) {
+        try {
+          const data = JSON.parse(saved);
+          checkStates = data.checks || {};
+          notes = data.notes || {};
+          analysisData = data.analysis || { posts: 0, stories: 0, reels: 0, followers: '', clients: '', partners: '' };
+          if(data.name) document.getElementById('nameField').innerText = data.name;
+          if(data.status) document.getElementById('statusField').innerText = data.status;
+          if(data.start) document.getElementById('startField').innerText = data.start;
+          if(data.insight) document.getElementById('insightField').innerText = data.insight;
+        } catch(e) {}
+      }
+    }
+
+    function attachEvents() {
+      document.addEventListener('change', (e) => {
+        if(e.target.classList.contains('day-check')) {
+          checkStates[e.target.dataset.day] = e.target.checked;
+          updateProgress();
+          saveAll();
+        }
+      });
+      document.addEventListener('input', (e) => {
+        if(e.target.classList.contains('note-input')) {
+          notes[e.target.dataset.day] = e.target.value;
+          saveAll();
+        }
+        if(e.target.id === 'postsInput' || e.target.id === 'storiesInput' || e.target.id === 'reelsInput' ||
+           e.target.id === 'followersInput' || e.target.id === 'clientsInput' || e.target.id === 'partnersInput') {
+          saveAll();
+        }
+      });
+      document.querySelectorAll('[contenteditable]').forEach(el => {
+        el.addEventListener('input', saveAll);
+      });
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        if(confirm('Сбросить все данные трекера?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          location.reload();
+        }
+      });
+    }
+
+    loadData();
+    renderTable('week1', week1Data);
+    renderTable('week2', week2Data);
+    renderTable('week3', week3Data);
+    renderTable('week4', week4Data);
+    renderAnalysis();
+    updateProgress();
+    attachEvents();
+  })();
+</script>
+</body>
+</html>
