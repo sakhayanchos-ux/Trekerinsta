@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>30-дневный трекер · Сахаяна</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #BADBEA;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px 16px 40px;
+      color: #1e1e2a;
+      line-height: 1.4;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    h1 { font-size: 1.8rem; font-weight: 600; margin-bottom: 8px; color: #1e293b; }
+    .subhead { color: #2c3e50; margin-bottom: 20px; border-left: 4px solid #FD95AC; padding-left: 16px; font-weight: 400; }
+    .status-panel {
+      display: flex; flex-wrap: wrap; gap: 12px 20px; background: white;
+      padding: 12px 18px; border-radius: 20px; margin-bottom: 20px; font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #EFDDD9;
+    }
+    .status-item { display: flex; align-items: baseline; gap: 6px; }
+    .status-label { font-weight: 600; color: #334155; }
+    .status-value { font-weight: 500; border-bottom: 2px dashed #FD95AC; min-width: 120px; padding: 2px 6px; }
+    .progress-badge {
+      margin-left: auto; background: #FD95AC; color: white;
+      padding: 6px 18px; border-radius: 40px; font-weight: 700;
+    }
+    .week-title {
+      font-size: 1.3rem; font-weight: 600; margin: 24px 0 12px; color: #1e293b;
+      background: white; display: inline-block; padding: 6px 20px; border-radius: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .table-wrapper {
+      background: white; border-radius: 24px; padding: 4px 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #EFDDD9;
+      margin-bottom: 16px; overflow-x: auto;
+    }
+    .tracker-table {
+      width: 100%; border-collapse: collapse; min-width: 900px; font-size: 0.85rem;
+    }
+    .tracker-table th {
+      text-align: left; background: #BADBEA; padding: 12px 8px; font-weight: 600;
+      color: #1e293b; border-bottom: 2px solid #FD95AC;
+    }
+    .tracker-table td {
+      padding: 10px 8px; border-bottom: 1px solid #EFDDD9; vertical-align: middle;
+    }
+    .day-col { font-weight: 700; width: 40px; background: #F9FCFE; }
+    .topic-col { min-width: 280px; }
+    .num-col { width: 70px; text-align: center; }
+    .num-col input {
+      width: 60px; padding: 6px; border: 1px solid #EFDDD9; border-radius: 12px;
+      text-align: center; font-size: 0.9rem; background: white;
+    }
+    .num-col input:focus { border-color: #FD95AC; outline: none; }
+    .invite-col { width: 100px; text-align: center; font-weight: 500; }
+    .note-input {
+      width: 100%; padding: 6px 8px; border: 1px solid #EFDDD9;
+      border-radius: 12px; font-size: 0.8rem; background: white;
+    }
+    .note-input:focus { border-color: #FD95AC; outline: none; }
+    .analysis-section {
+      background: white; border-radius: 28px; padding: 24px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04); border: 1px solid #EFDDD9;
+      margin-top: 24px;
+    }
+    .analysis-title { font-size: 1.4rem; font-weight: 600; margin-bottom: 16px; color: #1e293b; }
+    .analysis-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 20px; margin-bottom: 20px;
+    }
+    .analysis-item { border-bottom: 1px dashed #FD95AC; padding-bottom: 8px; }
+    .analysis-label { font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
+    .analysis-value { font-size: 1.4rem; font-weight: 600; color: #1e293b; }
+    .analysis-value input {
+      width: 100px; padding: 6px; border: 1px solid #EFDDD9; border-radius: 12px;
+      font-size: 1.2rem; background: white;
+    }
+    .insight-block { margin-top: 20px; padding-top: 16px; border-top: 2px solid #BADBEA; }
+    .insight-text {
+      background: #F9FCFE; padding: 14px 18px; border-radius: 20px;
+      border-left: 6px solid #FD95AC; font-weight: 500;
+    }
+    .footnote { margin-top: 20px; text-align: right; font-size: 1rem; font-weight: 600; color: #FD95AC; }
+    .reset-btn {
+      background: white; border: 1px solid #FD95AC; padding: 6px 16px;
+      border-radius: 30px; font-size: 0.8rem; color: #FD95AC; cursor: pointer; font-weight: 500;
+    }
+    .reset-btn:hover { background: #FD95AC; color: white; }
+    @media (max-width: 640px) {
+      .status-panel { flex-direction: column; }
+      .progress-badge { margin-left: 0; }
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>📱 30-ДНЕВНЫЙ ТРЕКЕР КОНТЕНТА</h1>
+    <button class="reset-btn" id="clearBtn">🗑️ Сбросить</button>
+  </div>
+  <div class="subhead"> Посты · Stories · Reels</div>
+
+  <!-- СТАТУС ПАНЕЛЬ -->
+  <div class="status-panel">
+    <div class="status-item"><span class="status-label">📌 Имя:</span><span class="status-value" id="nameField" contenteditable="true">Имя</span></div>
+    <div class="status-item"><span class="status-label">💼 Статус:</span><span class="status-value" id="statusField" contenteditable="true">Статус</span></div>
+    <div class="status-item"><span class="status-label">📅 Старт:</span><span class="status-value" id="startField" contenteditable="true">_______________</span></div>
+    <div class="progress-badge">🔥 Дней заполнено: <span id="progressCount">0</span>/30</div>
+  </div>
+
+  <!-- ТАБЛИЦЫ ПО НЕДЕЛЯМ БУДУТ ВСТАВЛЕНЫ ЧЕРЕЗ JS -->
+  <div id="weeksContainer"></div>
+
+  <!-- ИТОГИ -->
+  <div class="analysis-section">
+    <div class="analysis-title">📊 ИТОГИ 30 ДНЕЙ</div>
+    <div class="analysis-grid">
+      <div class="analysis-item"><div class="analysis-label">Всего постов</div><div class="analysis-value" id="totalPosts">0</div></div>
+      <div class="analysis-item"><div class="analysis-label">Всего Stories</div><div class="analysis-value" id="totalStories">0</div></div>
+      <div class="analysis-item"><div class="analysis-label">Всего Reels</div><div class="analysis-value" id="totalReels">0</div></div>
+      <div class="analysis-item"><div class="analysis-label">Новые подписчики</div><div class="analysis-value"><input type="text" id="followersInput" placeholder="0" style="width:100%;"></div></div>
+      <div class="analysis-item"><div class="analysis-label">Заявки в клуб</div><div class="analysis-value"><input type="text" id="clientsInput" placeholder="0" style="width:100%;"></div></div>
+      <div class="analysis-item"><div class="analysis-label">Новые партнёры</div><div class="analysis-value"><input type="text" id="partnersInput" placeholder="0" style="width:100%;"></div></div>
+    </div>
+    <div class="insight-block">
+      <div style="font-weight: 600; margin-bottom: 10px;">💡 Главный инсайт после 30 дней</div>
+      <div class="insight-text" id="insightField" contenteditable="true">Что сработало лучше всего? Что изменишь в следующем месяце?</div>
+    </div>
+    <div class="footnote">Разбогатей 🚀</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    const STORAGE_KEY = 'sahayana_content_30_v2';
+    
+    // Данные 30 дней
+    const weeks = [
+      { title: '📅 НЕДЕЛЯ 1', days: [
+        [1,'🥤 Базовый набор (Алоэ, Чай, Ф1, Белок, Вечерний, ОЯН + шейкер и ложка)','В наличии'],
+        [2,'💼 Почему Herbalife — бизнес для мам и других (заработок от 35%, розничный 25%)','✅ В клуб'],
+        [3,'🍳 ПП-вафли + польза протеиновой муки','Продать муку'],
+        [4,'👀 Омега-3 + Green Max с лютеином (зрение + память)','В наличии'],
+        [5,'🔥 Для похудения (Термокомплит, Фитокомплит, жёлтые таблетки, Cell-U-Loss)','В наличии'],
+        [6,'🏠 Моя суббота: семья и баланс','—'],
+        [7,'📋 План на неделю + анонс тем','—']
+      ]},
+      { title: '📅 НЕДЕЛЯ 2', days: [
+        [8,'🌙 Вечерний коктейль + Куриный суп + чипсы','В наличии'],
+        [9,'💼 Как я стала Супервайзором (моя история)','✅ В клуб'],
+        [10,'🍳 Кекс в кружке за 3 минуты + мука','Продать муку'],
+        [11,'💊 Женские витамины (польза, состав)','В наличии'],
+        [12,'💼 Ответ на «У меня не получится»','✅ В бизнес'],
+        [13,'🏠 Прогулка с семьёй','—'],
+        [14,'📋 Итоги недели + отзыв клиента','—']
+      ]},
+      { title: '📅 НЕДЕЛЯ 3', days: [
+        [15,'💪 Мужские витамины (польза, состав)','В наличии'],
+        [16,'💼 Сколько зарабатывает партнёр 35%','✅ В команду'],
+        [17,'🍳 ПП-сырники + польза белка','Продать муку'],
+        [18,'🦴 Кальций с минералами (усвоение)','В наличии'],
+        [19,'💼 Прямой эфир «Бизнес с Herbalife»','✅ На бизнес'],
+        [20,'🏠 День с ребёнком','—'],
+        [21,'📋 Что ждёт на следующей неделе','—']
+      ]},
+      { title: '📅 НЕДЕЛЯ 4 + ФИНИШ', days: [
+        [22,'✨ Коллаген (халяльный и обычный)','В наличии'],
+        [23,'💼 Приглашение на День клиента','✅ На встречу'],
+        [24,'🍳 ПП-брауни + протеиновая мука','Продать муку'],
+        [25,'⚡ CR7 и Восстановление силы 24','В наличии'],
+        [26,'💼 Мотивация: как стать 42% или как стать 50%','✅ В команду'],
+        [27,'🏠 Выходной с пользой','—'],
+        [28,'📋 Итоги 4 недель','—'],
+        [29,'💼 Прямой эфир: вопросы о бизнесе','✅ В команду'],
+        [30,'🎁 Благодарность + Розыгрыш','✅ В клуб']
+      ]}
+    ];
+
+    let posts = {}, stories = {}, reels = {}, notes = {};
+    let analysis = { followers: '', clients: '', partners: '' };
+
+    function renderAll() {
+      const container = document.getElementById('weeksContainer');
+      let html = '';
+      weeks.forEach((week, wIdx) => {
+        html += `<div class="week-title">${week.title}</div><div class="table-wrapper"><table class="tracker-table">`;
+        html += `<thead><tr><th>День</th><th>Тема</th><th>📝 Пост</th><th>📷 Stories</th><th>🎬 Reels</th><th>Приглашение</th><th>📝 Заметка</th></tr></thead><tbody>`;
+        week.days.forEach((day, dIdx) => {
+          const dayNum = day[0];
+          html += `<tr>`;
+          html += `<td class="day-col">${dayNum}</td>`;
+          html += `<td class="topic-col">${day[1]}</td>`;
+          html += `<td class="num-col"><input type="number" min="0" class="post-input" data-day="${dayNum}" value="${posts[dayNum] || ''}" placeholder="0"></td>`;
+          html += `<td class="num-col"><input type="number" min="0" class="story-input" data-day="${dayNum}" value="${stories[dayNum] || ''}" placeholder="0"></td>`;
+          html += `<td class="num-col"><input type="number" min="0" class="reel-input" data-day="${dayNum}" value="${reels[dayNum] || ''}" placeholder="0"></td>`;
+          html += `<td class="invite-col">${day[2]}</td>`;
+          html += `<td><input type="text" class="note-input" data-day="${dayNum}" placeholder="Заметка" value="${notes[dayNum] || ''}"></td>`;
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+      });
+      container.innerHTML = html;
+      updateTotals();
+      updateProgress();
+    }
+
+    function updateTotals() {
+      let sumP = 0, sumS = 0, sumR = 0;
+      for(let i=1; i<=30; i++) {
+        sumP += Number(posts[i]) || 0;
+        sumS += Number(stories[i]) || 0;
+        sumR += Number(reels[i]) || 0;
+      }
+      document.getElementById('totalPosts').innerText = sumP;
+      document.getElementById('totalStories').innerText = sumS;
+      document.getElementById('totalReels').innerText = sumR;
+    }
+
+    function updateProgress() {
+      let filled = 0;
+      for(let i=1; i<=30; i++) {
+        if((posts[i] && Number(posts[i])>0) || (stories[i] && Number(stories[i])>0) || (reels[i] && Number(reels[i])>0)) filled++;
+      }
+      document.getElementById('progressCount').innerText = filled;
+    }
+
+    function saveAll() {
+      analysis.followers = document.getElementById('followersInput')?.value || '';
+      analysis.clients = document.getElementById('clientsInput')?.value || '';
+      analysis.partners = document.getElementById('partnersInput')?.value || '';
+      const data = {
+        posts, stories, reels, notes, analysis,
+        name: document.getElementById('nameField')?.innerText || 'Сахаяна',
+        status: document.getElementById('statusField')?.innerText || '',
+        start: document.getElementById('startField')?.innerText || '',
+        insight: document.getElementById('insightField')?.innerText || ''
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function loadData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved) {
+        try {
+          const data = JSON.parse(saved);
+          posts = data.posts || {};
+          stories = data.stories || {};
+          reels = data.reels || {};
+          notes = data.notes || {};
+          analysis = data.analysis || { followers: '', clients: '', partners: '' };
+          if(data.name) document.getElementById('nameField').innerText = data.name;
+          if(data.status) document.getElementById('statusField').innerText = data.status;
+          if(data.start) document.getElementById('startField').innerText = data.start;
+          if(data.insight) document.getElementById('insightField').innerText = data.insight;
+          document.getElementById('followersInput').value = analysis.followers || '';
+          document.getElementById('clientsInput').value = analysis.clients || '';
+          document.getElementById('partnersInput').value = analysis.partners || '';
+        } catch(e) {}
+      }
+    }
+
+    function attachEvents() {
+      document.addEventListener('input', (e) => {
+        const t = e.target;
+        if(t.classList.contains('post-input')) {
+          posts[t.dataset.day] = t.value;
+          updateTotals(); updateProgress(); saveAll();
+        } else if(t.classList.contains('story-input')) {
+          stories[t.dataset.day] = t.value;
+          updateTotals(); updateProgress(); saveAll();
+        } else if(t.classList.contains('reel-input')) {
+          reels[t.dataset.day] = t.value;
+          updateTotals(); updateProgress(); saveAll();
+        } else if(t.classList.contains('note-input')) {
+          notes[t.dataset.day] = t.value;
+          saveAll();
+        } else if(t.id === 'followersInput' || t.id === 'clientsInput' || t.id === 'partnersInput') {
+          saveAll();
+        }
+      });
+      document.querySelectorAll('[contenteditable]').forEach(el => el.addEventListener('input', saveAll));
+      document.getElementById('clearBtn').addEventListener('click', () => {
+        if(confirm('Сбросить все данные?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+      });
+    }
+
+    loadData();
+    renderAll();
+    attachEvents();
+  })();
+</script>
+</body>
+</html>
